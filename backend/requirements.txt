@@ -1,0 +1,19 @@
+# User Management Service — SCI-PATH
+#
+# Auth, profiles, JWT sessions (max 2h). Separate from learning-path-engine.
+#
+# Python 3.11+
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+sqlalchemy>=2.0.25
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.1,<4.1
+python-multipart>=0.0.9
+httpx>=0.26.0
+email-validator>=2.1.0
+psycopg2-binary>=2.9.9
+python-dotenv>=1.0.0
