@@ -165,12 +165,11 @@ class ClassEnrollment(Base):
 
 
 class EducatorProfile(Base):
-    """Teacher extras — owned by content_generation schema (not in shared)."""
+    """Teacher extras — lives alongside users in shared schema."""
 
     __tablename__ = "educator_profiles"
-    __table_args__ = {"schema": "content_generation"}
+    __table_args__ = {"schema": "shared"}
 
-    # No DB FK: Neon role cannot REFERENCE shared.users; integrity enforced in app
     user_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     grades_taught: Mapped[str] = mapped_column(String(64), default="")
     class_sections: Mapped[str] = mapped_column(String(255), default="")
@@ -189,7 +188,7 @@ class RevokedToken(Base):
     __tablename__ = "revoked_tokens"
     __table_args__ = (
         UniqueConstraint("jti", name="uq_revoked_jti"),
-        {"schema": "content_generation"},
+        {"schema": "shared"},
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
@@ -203,7 +202,7 @@ class PasswordResetToken(Base):
     """One-time tokens for forgot-password / reset-password."""
 
     __tablename__ = "password_reset_tokens"
-    __table_args__ = {"schema": "content_generation"}
+    __table_args__ = {"schema": "shared"}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
     user_id: Mapped[str] = mapped_column(String(64), index=True)
