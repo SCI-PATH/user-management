@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import datetime
 
@@ -117,8 +118,15 @@ def signup_student(body: StudentSignupRequest, db: Session = Depends(get_db)) ->
         class_section=None,
     )
     db.add(learner)
+    # Flush learner before enrollment so shared.class_enrollments FK is satisfied.
+    db.flush()
     if class_room:
-        db.add(ClassEnrollment(class_code=class_room.class_code, learner_id=learner.learner_id))
+        db.add(
+            ClassEnrollment(
+                class_code=class_room.class_code,
+                learner_id=learner.learner_id,
+            )
+        )
     # prev_year marks are not on shared.learners yet — ignored for persistence
     db.commit()
     db.refresh(user)
@@ -146,11 +154,16 @@ def _signup_teacher(body: TeacherSignupRequest, db: Session) -> TokenResponse:
     db.flush()
     grades = ",".join(str(g) for g in body.grades_taught)
     sections = ",".join(s.strip() for s in body.class_sections if s and s.strip())
+    meta = None
+    school = (body.school_name or "").strip()
+    if school:
+        meta = json.dumps({"school_name": school})
     db.add(
         EducatorProfile(
             user_id=user.id,
             grades_taught=grades,
             class_sections=sections,
+            metadata_json=meta,
         )
     )
     db.commit()

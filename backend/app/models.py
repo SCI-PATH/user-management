@@ -106,6 +106,10 @@ class StudentProfile(Base):
         back_populates="student_profile",
         foreign_keys=[user_id],
     )
+    enrollments: Mapped[list["ClassEnrollment"]] = relationship(
+        back_populates="learner",
+        cascade="all, delete-orphan",
+    )
 
     # Not present on shared.learners — API still accepts the field but it is not persisted
     @property
@@ -162,6 +166,8 @@ class ClassEnrollment(Base):
         String(64), ForeignKey("shared.learners.learner_id"), nullable=False, index=True
     )
     enrolled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+    learner: Mapped["StudentProfile"] = relationship(back_populates="enrollments")
 
 
 class EducatorProfile(Base):

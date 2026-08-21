@@ -60,6 +60,11 @@ class TeacherSignupRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=128)
     grades_taught: list[int] = Field(default_factory=list)
     class_sections: list[str] = Field(default_factory=list)
+    school_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="School / institution name (stored on educator profile metadata).",
+    )
 
     @field_validator("grades_taught")
     @classmethod
@@ -119,6 +124,14 @@ class StudentProfilePublic(BaseModel):
         default=None,
         description="Canonical learner profile ID used by learning and analytics services.",
     )
+    class_codes: list[str] = Field(
+        default_factory=list,
+        description="Class codes this learner is enrolled in (teacher-owned classrooms).",
+    )
+    class_code: str | None = Field(
+        default=None,
+        description="Primary / most recent class code (first entry of class_codes).",
+    )
 
 
 class TeacherProfilePublic(BaseModel):
@@ -127,6 +140,10 @@ class TeacherProfilePublic(BaseModel):
         description="Grades this teacher covers (6–9).",
     )
     class_sections: list[str] = Field(default_factory=list)
+    school_name: str | None = Field(
+        default=None,
+        description="School / institution if provided at signup.",
+    )
 
 
 EducatorProfilePublic = TeacherProfilePublic

@@ -49,22 +49,51 @@ def _display_name(user: User) -> str:
     return user.username or user.email or user.id
 
 
+def _parse_school_name(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return None
+    if isinstance(data, dict):
+        name = data.get("school_name")
+        return str(name).strip() if name else None
+    return None
+
+
+def _student_class_codes(user: User) -> list[str]:
+    sp = user.student_profile
+    if not sp:
+        return []
+    codes: list[str] = []
+    for enrollment in getattr(sp, "enrollments", None) or []:
+        code = (enrollment.class_code or "").strip().upper()
+        if code and code not in codes:
+            codes.append(code)
+    return codes
+
+
 def user_to_public(user: User) -> UserPublic:
     role = normalize_role(user.role)
     student = None
     teacher = None
     if role == "student" and user.student_profile and user.student_profile.grade is not None:
         sp = user.student_profile
+        codes = _student_class_codes(user)
         student = StudentProfilePublic(
             grade=sp.grade,
             prev_year_science_marks=sp.prev_year_science_marks,
             learner_id=sp.learner_id,
+            class_codes=codes,
+            class_code=codes[0] if codes else None,
         )
     if is_teacher_role(user.role) and user.educator_profile:
         ep = user.educator_profile
         teacher = TeacherProfilePublic(
             grades_taught=_parse_grades(ep.grades_taught),
             class_sections=_parse_sections(ep.class_sections),
+            school_name=_parse_school_name(ep.metadata_json),
         )
     return UserPublic(
         id=user.id,
