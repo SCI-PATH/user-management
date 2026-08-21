@@ -7,11 +7,21 @@ from app.config import get_settings
 
 settings = get_settings()
 
-connect_args = {}
-if settings.database_url.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
+connect_args: dict = {}
+engine_kwargs: dict = {"connect_args": connect_args}
 
-engine = create_engine(settings.database_url, connect_args=connect_args)
+if settings.database_url.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+elif settings.database_url.startswith("postgresql"):
+    # Neon drops idle connections; recycle + pre_ping avoids SSL SYSCALL / abort errors.
+    engine_kwargs.update(
+        pool_pre_ping=True,
+        pool_recycle=280,
+        pool_size=5,
+        max_overflow=10,
+    )
+
+engine = create_engine(settings.database_url, **engine_kwargs)
 
 if settings.database_url.startswith("sqlite"):
 
