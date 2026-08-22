@@ -1,0 +1,27 @@
+# Notifies deployment-orchestration to rebuild UM only.
+# Secret required: ORCHESTRATION_DISPATCH_TOKEN (PAT with repo access to deployment-orchestration)
+
+name: trigger-orchestration
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch service-changed (um)
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.ORCHESTRATION_DISPATCH_TOKEN }}
+          repository: SCI-PATH/deployment-orchestration
+          event-type: service-changed
+          client-payload: |
+            {
+              "service": "um",
+              "source_repo": "${{ github.repository }}",
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref }}"
+            }
