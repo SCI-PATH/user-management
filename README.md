@@ -214,3 +214,7 @@ Not wired yet by design. When ready:
 | user-management UI | 3001 |
 | learning-path-engine API | 8000 |
 | learning-path-engine UI | 3000 |
+
+## CI
+
+Pushes to `main` or `dev` trigger a Docker build for this service in [deployment-orchestration](https://github.com/SCI-PATH/deployment-orchestration) via `trigger-orchestration.yml`.
