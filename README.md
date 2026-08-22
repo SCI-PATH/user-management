@@ -217,4 +217,4 @@ Not wired yet by design. When ready:
 
 ## CI
 
-Pushes to `main` or `dev` trigger a Docker build for this service in [deployment-orchestration](https://github.com/SCI-PATH/deployment-orchestration) via `trigger-orchestration.yml`. Requires `ORCHESTRATION_DISPATCH_TOKEN` on this repo and `SUBMODULES_ACCESS_TOKEN` on orchestration.
+Pushes to `main` or `dev` trigger a Docker build for this service in [deployment-orchestration](https://github.com/SCI-PATH/deployment-orchestration) via `trigger-orchestration.yml`. Requires `ORCHESTRATION_DISPATCH_TOKEN` on this repo and `SUBMODULES_ACCESS_TOKEN` on orchestration (same PAT value is fine).
