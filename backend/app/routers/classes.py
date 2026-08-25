@@ -35,7 +35,7 @@ def _require_student(user: User) -> None:
     if normalize_role(user.role) != "student":
         raise client_error(
             code="student_required",
-            message="Only students can join a class.",
+            message="Only students can perform this action.",
             http_status=403,
         )
 
@@ -103,6 +103,43 @@ def list_my_classes(
         .order_by(ClassRoom.created_at.desc())
         .all()
     )
+
+
+@router.get(
+    "/enrolled",
+    response_model=list[ClassPublic],
+    summary="List classes I am enrolled in",
+)
+def list_enrolled_classes(
+    learner_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[ClassRoom]:
+    """Student dashboard: classes joined via class code."""
+    _require_student(learner_user)
+    learner = learner_user.student_profile
+    if not learner:
+        return []
+
+    codes = [
+        row[0]
+        for row in (
+            db.query(ClassEnrollment.class_code)
+            .filter(ClassEnrollment.learner_id == learner.learner_id)
+            .order_by(ClassEnrollment.enrolled_at.desc())
+            .all()
+        )
+    ]
+    if not codes:
+        return []
+
+    rooms = (
+        db.query(ClassRoom)
+        .filter(ClassRoom.class_code.in_(codes), ClassRoom.is_active.is_(True))
+        .all()
+    )
+    by_code = {room.class_code: room for room in rooms}
+    # Preserve enrollment order (newest first).
+    return [by_code[code] for code in codes if code in by_code]
 
 
 @router.post("/join", response_model=ClassJoinResponse, summary="Join a class")
