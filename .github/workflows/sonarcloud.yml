@@ -1,0 +1,23 @@
+# SonarCloud static analysis — SCI-PATH
+name: SonarCloud
+
+on:
+  push:
+    branches: [main, dev, develop]
+  pull_request:
+    branches: [main, dev, develop]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
