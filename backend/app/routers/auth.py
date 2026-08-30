@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from datetime import datetime
 
@@ -41,6 +42,7 @@ from app.serializers import normalize_role, token_claims_for_user, user_to_publi
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
 bearer = HTTPBearer(auto_error=False)
+log = logging.getLogger(__name__)
 
 
 def _issue_token(user: User) -> TokenResponse:
@@ -250,7 +252,7 @@ def logout(
         try:
             revoke_token(db, jti=jti, user_id=sub, expires_at=expires_at)
         except Exception:
-            pass
+            log.exception("logout revoke_token failed user=%r jti=%r", sub, jti)
     return MessageResponse(message="Signed out. Please log in again.", code="logged_out")
 
 

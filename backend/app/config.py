@@ -17,9 +17,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 360
     # Password-reset tokens
     password_reset_expire_minutes: int = 60
-    # When true (default for local/dev), forgot-password response includes reset_token
-    # so you can test without email. Set false in production and wire SMTP later.
-    expose_reset_token: bool = True
+    # When true (local/dev only), forgot-password response includes reset_token.
+    expose_reset_token: bool = False
 
     cors_origins: str = "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"
 
